@@ -10,7 +10,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-public class ExcelUtility {
+public class  {
 	
 	public static FileInputStream fis;
 	public static FileOutputStream fos;
@@ -31,9 +31,7 @@ public class ExcelUtility {
 		row = sheet.getRow(this.rowCount);
 		this.cellCount =row.getLastCellNum();
 		wb.close();
-		fis.close();
-		
-		
+		fis.close();	
 	}
 	
 	//getting cell count
@@ -55,7 +53,9 @@ public class ExcelUtility {
 		sheet = wb.getSheet(xlsheet);
 		row = sheet.getRow(rowNum);
 		cell = row.getCell(colnum);
+		
 		String data;
+		
 		try
 		{
 			DataFormatter formatter = new DataFormatter();
@@ -68,7 +68,5 @@ public class ExcelUtility {
 		}wb.close();
 		fis.close();
 		return data;
-	}
-
-	
+	}	
 }
