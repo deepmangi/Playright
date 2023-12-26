@@ -6,83 +6,78 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;        
+import java.util.TreeMap;
+
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class excelUtilityComplete {
 	
+	public static FileInputStream fis;
+	public static FileOutputStream fos;
+	public static XSSFWorkbook wb;
+	public static XSSFSheet sheet;
+	public static XSSFRow row;
+	public static XSSFCell cell;
+	
 	//this map stores the data which is to be stored in excel
 	static Map<String, Object[]> data = new TreeMap<String, Object[]>();
 
-	public static void Write(String sheet_Name,String path,Map<String, Object[]> data) 
+	public static void Write(String sheet_Name,String path,Map<String, Object[]> data) throws IOException 
 	{
-		try (
-			//Blank workbook
-			XSSFWorkbook workbook = new XSSFWorkbook()) {
-			
+			wb = new XSSFWorkbook();			
 			//Create a blank sheet
-			XSSFSheet sheet = workbook.createSheet(sheet_Name);
+			XSSFSheet sheet = wb.createSheet(sheet_Name);
 
 			//Iterate over data and write to sheet
 			Set<String> keyset = data.keySet();
 			int rownum = 0;
 			for (String key : keyset)
 			{
-				Row row = sheet.createRow(rownum++);
+				row = sheet.createRow(rownum++);
 				Object [] objArr = data.get(key);
 				int cellnum = 0;
 				for (Object obj : objArr)
 				{
-					Cell cell = row.createCell(cellnum++);
+					cell = row.createCell(cellnum++);
 					if(obj instanceof String)
 						cell.setCellValue((String)obj);
 					else if(obj instanceof Integer)
 						cell.setCellValue((Integer)obj);
 				}
 			}
-			try
-			{
+			
 				//Write the workbook in file system
-				FileOutputStream out = new FileOutputStream(new File(path));
-				workbook.write(out);
-				out.close();
+				fos = new FileOutputStream(new File(path));
+				wb.write(fos);
+				fos.close();
 				System.out.println("******File Write Successfull.******");
-			} 
-			catch (Exception e) 
-			{
-				e.printStackTrace();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	public static void Update(String path,int ID,String KEY,String VALUE) {
-
-		XSSFWorkbook workbook=null;
-		XSSFSheet sheet;
+		
 		try{
-			FileInputStream file = new FileInputStream(new File(path));
+			fis = new FileInputStream(new File(path));
 
 			//Create Workbook instance holding reference to .xlsx file
-			workbook = new XSSFWorkbook(file);
+			wb = new XSSFWorkbook(fis);
 
 			//Get first/desired sheet from the workbook
-			//Most of people make mistake by making new sheet by looking in tutorial
-			sheet = workbook.getSheetAt(workbook.getActiveSheetIndex());
+			sheet = wb.getSheetAt(wb.getActiveSheetIndex());
 
 			excelUtilityComplete Up = new excelUtilityComplete(ID,KEY,VALUE);
 			//Get the count in sheet
 			int rowCount = sheet.getLastRowNum()+1;
-			Row empRow = sheet.createRow(rowCount);
+			row = sheet.createRow(rowCount);
 			System.out.println();
-			Cell c1 = empRow.createCell(0);
+			Cell c1 = row.createCell(0);
 			c1.setCellValue(Up.getId());
-			Cell c2 = empRow.createCell(1);
+			Cell c2 = row.createCell(1);
 			c2.setCellValue(Up.getFirstName());
-			Cell c3 = empRow.createCell(2);
+			Cell c3 = row.createCell(2);
 			c3.setCellValue(Up.getLastName());
 		}
 		catch (Exception e) 
@@ -92,11 +87,11 @@ public class excelUtilityComplete {
 		try
 		{
 			//Write the workbook in file system
-			FileOutputStream out = new FileOutputStream(new 
+			fos = new FileOutputStream(new 
 					File(path));
-			workbook.write(out);
-			out.close();
-			System.out.println("Update Successfully");
+			wb.write(fos);
+			fos.close();
+			System.out.println("******File Update Successfull******");
 		} 
 		catch (Exception e) 
 		{
@@ -104,7 +99,6 @@ public class excelUtilityComplete {
 		}
 	}
 	
-	//employee code
 	private int id;
 	private String col1;
 	private String col2;
@@ -135,5 +129,29 @@ public class excelUtilityComplete {
 	}
 	public void setId(int id) {
 		this.id = id;
+	}
+	public static String getData(String xlfile,String xlsheet, int rowNum,int colnum) throws IOException {
+		
+		
+		fis = new FileInputStream(xlfile);
+		wb = new XSSFWorkbook(fis);
+		sheet = wb.getSheet(xlsheet);
+		row = sheet.getRow(rowNum);
+		cell = row.getCell(colnum);
+		
+		String data;
+			try
+			{
+				DataFormatter formatter = new DataFormatter();
+				String cellData = formatter.formatCellValue(cell);
+				wb.close();
+				return cellData;
+			}
+			catch(Exception e)
+			{
+				data="";
+			}
+		fis.close();
+		return data;
 	}
 }
